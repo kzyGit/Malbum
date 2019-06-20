@@ -2,10 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	// "io/ioutil"
 	"net/http"
 	"time"
 
 	"strconv"
+
+	// "../db"
+	// "../schema"
+	// "../service"
 
 	"github.com/gorilla/mux"
 )
@@ -21,7 +26,9 @@ var album []Album
 
 var id = 0
 
-type songsHandler struct{}
+type songsHandler struct {
+	// postgres *db.Postgres
+}
 
 func (handler *songsHandler) Addsong(w http.ResponseWriter, req *http.Request) {
 	var song Album
@@ -33,6 +40,32 @@ func (handler *songsHandler) Addsong(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(album)
 
 }
+
+// func (handler *songsHandler) Addsong(w http.ResponseWriter, r *http.Request) {
+// 	ctx := db.SetRepository(r.Context(), handler.postgres)
+
+// 	b, err := ioutil.ReadAll(r.Body)
+
+// 	panic(err)
+// 	if err != nil {
+// 		responseError(w, http.StatusInternalServerError, err.Error())
+// 		return
+// 	}
+
+// 	var song schema.Album
+// 	if err := json.Unmarshal(b, &song); err != nil {
+// 		responseError(w, http.StatusBadRequest, err.Error())
+// 		return
+// 	}
+
+// 	id, err := service.Insert(ctx, &song)
+// 	if err != nil {
+// 		responseError(w, http.StatusInternalServerError, err.Error())
+// 		return
+// 	}
+
+// 	responseOk(w, id)
+// }
 
 func (handler *songsHandler) getAlbum(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(album)
