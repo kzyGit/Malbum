@@ -19,7 +19,7 @@ type Album struct {
 
 var album []Album
 
-var id = 0
+var id = 1
 
 type songsHandler struct{}
 
@@ -31,7 +31,6 @@ func (handler *songsHandler) Addsong(w http.ResponseWriter, req *http.Request) {
 	song.DateAdded = time.Now()
 	album = append(album, song)
 	json.NewEncoder(w).Encode(album)
-
 }
 
 func (handler *songsHandler) getAlbum(w http.ResponseWriter, req *http.Request) {
