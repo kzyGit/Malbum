@@ -19,6 +19,9 @@ func Delete(ctx context.Context, id int) error {
     return db.Delete(ctx, id)
 }
 
+func UpdateSong(ctx context.Context, id int, album *schema.Album)(string, schema.Album, error){
+    return db.UpdateSong(ctx, id, album)
+}
 func GetAll(ctx context.Context) ([]schema.Album, error) {
     return db.GetAll(ctx)
 }

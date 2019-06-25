@@ -33,6 +33,8 @@ func SetUpRouting(postgres *db.Postgres) *mux.Router {
 			songsHandler.getSong(w, r)
 		case http.MethodDelete:
 			songsHandler.deleteSong(w, r)
+		case http.MethodPut:
+			songsHandler.updateSong(w, r)
 		default:
 			responseError(w, http.StatusNotFound, "Invalid route or request method")
 		}

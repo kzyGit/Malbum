@@ -33,20 +33,12 @@ func (p *Postgres) Insert(song *schema.Album) (string, schema.Album, error) {
 	VALUES (nextval('song_id'), $1, $2, $3) RETURNING *;`
 
 	rows, err := p.DB.Query(query, song.Title, song.Artist, song.DateAdded)
-    var newsong schema.Album
-    
-    if err != nil {
+	var newsong schema.Album
+
+	if err != nil {
 		return "Error", newsong, err
 	}
 
-	// var id int
-	// for rows.Next() {
-	// 	if err := rows.Scan(&id); err != nil {
-	// 		return -1, err
-	// 	}
-	// }
-
-	
 	for rows.Next() {
 
 		if err := rows.Scan(&newsong.ID, &newsong.Title, &newsong.Artist, &newsong.DateAdded); err != nil {
@@ -114,4 +106,26 @@ func (p *Postgres) GetOne(id int) (schema.Album, error) {
 		}
 	}
 	return t, nil
+}
+
+func (p *Postgres) UpdateSong(id int, song *schema.Album) (string, schema.Album, error) {
+	query := `
+        UPDATE album SET title=$1, artist=$2
+        WHERE id=$3 RETURNING *;
+    `
+	rows, err := p.DB.Query(query, song.Title, song.Artist, id)
+	var newsong schema.Album
+
+	if err != nil {
+		return "Error", newsong, err
+	}
+
+	for rows.Next() {
+
+		if err := rows.Scan(&newsong.ID, &newsong.Title, &newsong.Artist, &newsong.DateAdded); err != nil {
+			return "Error", newsong, err
+		}
+
+	}
+	return "Song updated successfully", newsong, nil
 }

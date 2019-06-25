@@ -14,6 +14,7 @@ type Repository interface {
     Delete(id int) error
     GetAll() ([]schema.Album, error)
     GetOne(id int) (schema.Album, error)
+    UpdateSong(id int, album *schema.Album)(string, schema.Album, error)
 }
 
 func SetRepository(ctx context.Context, repository Repository) context.Context {
@@ -30,6 +31,10 @@ func Insert(ctx context.Context, album *schema.Album) (string, schema.Album, err
 
 func Delete(ctx context.Context, id int) error {
     return getRepository(ctx).Delete(id)
+}
+
+func UpdateSong(ctx context.Context, id int, album *schema.Album)(string, schema.Album, error){
+    return getRepository(ctx).UpdateSong(id, album)
 }
 
 func GetAll(ctx context.Context) ([]schema.Album, error) {

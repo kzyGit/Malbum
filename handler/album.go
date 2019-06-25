@@ -98,6 +98,35 @@ func (handler *songsHandler) deleteSong(w http.ResponseWriter, r *http.Request) 
 
 }
 
+func (handler *songsHandler) updateSong(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	ctx := db.SetRepository(r.Context(), handler.postgres)
+	id, _ = strconv.Atoi(params["id"])
+	b, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		responseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	var song schema.Album
+
+	if err := json.Unmarshal(b, &song); err != nil {
+		responseError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	_, newsong, err := service.UpdateSong(ctx, id, &song)
+
+	if err != nil {
+		responseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseOk(w, newsong)
+
+}
+
 func responseOk(w http.ResponseWriter, body interface{}) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
