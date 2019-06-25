@@ -10,9 +10,10 @@ const keyRepository = "Repository"
 
 type Repository interface {
     Close()
-    Insert(album *schema.Album) (int, error)
+    Insert(album *schema.Album) (string, schema.Album, error)
     Delete(id int) error
     GetAll() ([]schema.Album, error)
+    GetOne(id int) (schema.Album, error)
 }
 
 func SetRepository(ctx context.Context, repository Repository) context.Context {
@@ -23,7 +24,7 @@ func Close(ctx context.Context) {
     getRepository(ctx).Close()
 }
 
-func Insert(ctx context.Context, album *schema.Album) (int, error) {
+func Insert(ctx context.Context, album *schema.Album) (string, schema.Album, error) {
     return getRepository(ctx).Insert(album)
 }
 
@@ -34,6 +35,11 @@ func Delete(ctx context.Context, id int) error {
 func GetAll(ctx context.Context) ([]schema.Album, error) {
     return getRepository(ctx).GetAll()
 }
+
+func GetOne(ctx context.Context, id int) (schema.Album, error) {
+    return getRepository(ctx).GetOne(id)
+}
+
 
 func getRepository(ctx context.Context) Repository {
     return ctx.Value(keyRepository).(Repository)

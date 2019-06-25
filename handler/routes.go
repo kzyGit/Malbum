@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"../db"
 )
 
-func SetUpRouting() *mux.Router {
-	songsHandler := &songsHandler{}
+func SetUpRouting(postgres *db.Postgres) *mux.Router {
+	songsHandler := &songsHandler{postgres: postgres}
 	usersHandler := &usersHandler{}
 
 	mux := mux.NewRouter()

@@ -2,11 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"time"
 
 	"strconv"
 
+	"../db"
+	"../schema"
+	"../service"
 	"github.com/gorilla/mux"
 )
 
@@ -21,46 +25,76 @@ var album []Album
 
 var id = 1
 
-type songsHandler struct{}
-
-func (handler *songsHandler) Addsong(w http.ResponseWriter, req *http.Request) {
-	var song Album
-	_ = json.NewDecoder(req.Body).Decode(&song)
-	song.ID = id + 1
-	id++
-	song.DateAdded = time.Now()
-	album = append(album, song)
-	json.NewEncoder(w).Encode(album)
+type songsHandler struct {
+	postgres *db.Postgres
 }
 
-func (handler *songsHandler) getAlbum(w http.ResponseWriter, req *http.Request) {
-	json.NewEncoder(w).Encode(album)
+func (handler *songsHandler) Addsong(w http.ResponseWriter, r *http.Request) {
 
-}
+	ctx := db.SetRepository(r.Context(), handler.postgres)
+	b, err := ioutil.ReadAll(r.Body)
 
-func (handler *songsHandler) getSong(w http.ResponseWriter, req *http.Request) {
-	params := mux.Vars(req)
-	for _, item := range album {
-
-		id, _ = strconv.Atoi(params["id"])
-		if item.ID == id {
-			json.NewEncoder(w).Encode(item)
-			return
-		}
+	if err != nil {
+		responseError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
+
+	var song schema.Album
+
+	if err := json.Unmarshal(b, &song); err != nil {
+		responseError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	_, newsong, err := service.Insert(ctx, &song)
+
+	if err != nil {
+		responseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseOk(w, newsong)
+
 }
 
-func (handler *songsHandler) deleteSong(w http.ResponseWriter, req *http.Request) {
-	params := mux.Vars(req)
-	for i, item := range album {
-		id, _ = strconv.Atoi(params["id"])
-		if item.ID == id {
-			album = append(album[:i], album[i+1:]...)
-			responseOk(w, "Song deleted successfully")
-			return
-		}
+func (handler *songsHandler) getAlbum(w http.ResponseWriter, r *http.Request) {
+	ctx := db.SetRepository(r.Context(), handler.postgres)
+
+	album, err := service.GetAll(ctx)
+	if err != nil {
+		responseError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
-	responseError(w, http.StatusNotFound, "No song with that ID")
+
+	responseOk(w, album)
+
+}
+
+func (handler *songsHandler) getSong(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	ctx := db.SetRepository(r.Context(), handler.postgres)
+	id, _ = strconv.Atoi(params["id"])
+
+	song, err := service.GetOne(ctx, id)
+	if err != nil {
+		responseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseOk(w, song)
+}
+
+func (handler *songsHandler) deleteSong(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	ctx := db.SetRepository(r.Context(), handler.postgres)
+	id, _ = strconv.Atoi(params["id"])
+
+	err := service.Delete(ctx, id)
+	if err != nil {
+		responseError(w, http.StatusNotFound, "No song with that ID")
+	}
+	responseOk(w, "Song deleted successfully")
 
 }
 

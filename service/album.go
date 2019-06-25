@@ -11,7 +11,7 @@ func Close(ctx context.Context) {
     db.Close(ctx)
 }
 
-func Insert(ctx context.Context, album *schema.Album) (int, error) {
+func Insert(ctx context.Context, album *schema.Album) (string, schema.Album, error) {
     return db.Insert(ctx, album)
 }
 
@@ -21,4 +21,8 @@ func Delete(ctx context.Context, id int) error {
 
 func GetAll(ctx context.Context) ([]schema.Album, error) {
     return db.GetAll(ctx)
+}
+
+func GetOne(ctx context.Context, id int) (schema.Album, error) {
+    return db.GetOne(ctx, id)
 }

@@ -4,7 +4,7 @@ import "time"
 
 type Album struct {
     ID      int       `json:"id"`
-    Title   string    `json:"name"`
+    Title   string    `json:"title"`
     Artist    string    `json:"artist"`
     DateAdded time.Time `json:"dateadded"`
 }
